@@ -8,10 +8,10 @@ project(exqudens_cpp_cmake_test VERSION 1.0.0)
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extension.cmake")
     file(
         DOWNLOAD
-            "https://raw.githubusercontent.com/exqudens/exqudens-cmake/6.1.2/src/main/cmake/extension.cmake"
+            "https://raw.githubusercontent.com/exqudens/exqudens-cmake/7.0.0/src/main/cmake/extension.cmake"
             "${CMAKE_CURRENT_SOURCE_DIR}/extension.cmake"
         EXPECTED_MD5
-            "518c54b699dcf1141cb381c4721b0e03"
+            "90f3ffc607fa7ff43f0d702d9d88c977"
     )
 endif()
 include(extension.cmake)
@@ -32,21 +32,21 @@ set(CMAKE_CXX_STANDARD 20)
 
 get_filename_component(CXX_COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 
-set_copy_file_command_arguments(CFCA_LIB_STDCPP_6 ${CXX_COMPILER_DIR} ${RUNTIME_OUTPUT_DIRECTORY}
+set_copy_file_command_arguments(CFCA_LIB_STDCPP_6 ${CXX_COMPILER_DIR}
     "libstdc++-6.dll"
 )
-set_copy_file_command_arguments(CFCA_LIB_GCC_S_SEH_1 ${CXX_COMPILER_DIR} ${RUNTIME_OUTPUT_DIRECTORY}
+set_copy_file_command_arguments(CFCA_LIB_GCC_S_SEH_1 ${CXX_COMPILER_DIR}
     "libgcc_s_seh-1.dll"
 )
-set_copy_file_command_arguments(CFCA_LIB_WINPTHREAD_1 ${CXX_COMPILER_DIR} ${RUNTIME_OUTPUT_DIRECTORY}
+set_copy_file_command_arguments(CFCA_LIB_WINPTHREAD_1 ${CXX_COMPILER_DIR}
     "libwinpthread-1.dll"
 )
 
 add_custom_target(copyRuntimeBinaries
     COMMAND ${CMAKE_COMMAND} -E make_directory ${RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} ${CFCA_LIB_STDCPP_6}
-    COMMAND ${CMAKE_COMMAND} ${CFCA_LIB_GCC_S_SEH_1}
-    COMMAND ${CMAKE_COMMAND} ${CFCA_LIB_WINPTHREAD_1}
+    COMMAND ${CMAKE_COMMAND} ${CFCA_LIB_STDCPP_6} ${RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} ${CFCA_LIB_GCC_S_SEH_1} ${RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} ${CFCA_LIB_WINPTHREAD_1} ${RUNTIME_OUTPUT_DIRECTORY}
     #COMMAND ${CMAKE_COMMAND} -E make_directory ${RESOURCE_OUTPUT_DIRECTORY}
     #COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/src/test/resources ${RESOURCE_OUTPUT_DIRECTORY}
 )
