@@ -79,5 +79,13 @@ add_test(
         exqudens.other.OtherTests.test2
 )
 set_tests_properties(main PROPERTIES
-    ENVIRONMENT $<TARGET_PROPERTY:TestExecutableShared,RUNTIME_OUTPUT_DIRECTORY>
+    ENVIRONMENT "PATH=$<TARGET_PROPERTY:TestExecutableShared,RUNTIME_OUTPUT_DIRECTORY>"
+)
+
+######################################################################
+# info ###############################################################
+######################################################################
+
+add_custom_target(info
+    COMMAND ${CMAKE_COMMAND} -E echo $<TARGET_PROPERTY:TestExecutableShared,RUNTIME_OUTPUT_DIRECTORY>
 )
