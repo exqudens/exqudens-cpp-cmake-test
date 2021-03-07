@@ -3,7 +3,7 @@
 ######################################################################
 
 cmake_minimum_required(VERSION 3.19)
-project(exqudens_cpp_cmake_test VERSION 1.0.0)
+project(exqudens-test VERSION 1.0.0)
 
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extension.cmake")
     file(
@@ -35,6 +35,17 @@ add_library(exqudensTestLibraryInterface INTERFACE
 target_include_directories(exqudensTestLibraryInterface INTERFACE
     src/main/cpp
 )
+set_target_properties(exqudensTestLibraryInterface PROPERTIES
+    INTERFACE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}/include"
+)
+add_custom_target(exqudensTestLibraryInterfaceBuild
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_OUTPUT_DIRECTORY>
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_OUTPUT_DIRECTORY>
+)
+add_dependencies(exqudensTestLibraryInterfaceBuild exqudensTestLibraryInterface)
 
 ######################################################################
 # test ###############################################################
@@ -49,6 +60,7 @@ target_include_directories(testLibraryInterface INTERFACE
 target_link_libraries(testLibraryInterface INTERFACE
     exqudensTestLibraryInterface
 )
+add_dependencies(testLibraryInterface exqudensTestLibraryInterfaceBuild)
 
 add_executable(TestExecutableShared src/test/cpp/main.cpp)
 target_link_libraries(TestExecutableShared
@@ -87,5 +99,9 @@ set_tests_properties(main PROPERTIES
 ######################################################################
 
 add_custom_target(info
+    COMMAND ${CMAKE_COMMAND} -E echo $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_SOURCES>
+    COMMAND ${CMAKE_COMMAND} -E echo $<TARGET_PROPERTY:exqudensTestLibraryInterface,SOURCES>
+    COMMAND ${CMAKE_COMMAND} -E echo $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_INCLUDE_DIRECTORIES>
+    COMMAND ${CMAKE_COMMAND} -E echo $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_OUTPUT_DIRECTORY>
     COMMAND ${CMAKE_COMMAND} -E echo $<TARGET_PROPERTY:TestExecutableShared,RUNTIME_OUTPUT_DIRECTORY>
 )
