@@ -86,7 +86,8 @@ foreach(fileName
         add_custom_command(
             TARGET copyTestExecutableSharedLibraries
             PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${CXX_COMPILER_DIR}/${fileName} $<TARGET_FILE_DIR:TestExecutableShared>
+            COMMAND ${CMAKE_COMMAND}
+            ARGS -E copy ${CXX_COMPILER_DIR}/${fileName} $<TARGET_FILE_DIR:TestExecutableShared>
         )
     endif()
 endforeach()
@@ -95,25 +96,44 @@ add_dependencies(TestExecutableShared testLibraryInterface copyTestExecutableSha
 enable_testing()
 
 add_test(
-    NAME main
+    NAME project-tests
     WORKING_DIRECTORY $<TARGET_FILE_DIR:TestExecutableShared>
     COMMAND TestExecutableShared -t
         exqudens.other.OtherTests.test1
         exqudens.other.OtherTests.test2
 )
-set_tests_properties(main PROPERTIES
+set_tests_properties(project-tests PROPERTIES
     ENVIRONMENT "PATH=$<TARGET_FILE_DIR:TestExecutableShared>"
+)
+
+######################################################################
+# install ############################################################
+######################################################################
+
+add_custom_target(project-install
+    COMMAND
+        ${CMAKE_COMMAND}
+        -E
+        make_directory
+        ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+    COMMAND
+        ${CMAKE_COMMAND}
+        -E
+        copy_directory
+        ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
+        ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
 )
 
 ######################################################################
 # info ###############################################################
 ######################################################################
 
-add_custom_target(info
+add_custom_target(project-info
     COMMAND ${CMAKE_COMMAND} -E echo "1:" $<TARGET_NAME_IF_EXISTS:info>
     COMMAND ${CMAKE_COMMAND} -E echo "2:" $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_SOURCES>
     COMMAND ${CMAKE_COMMAND} -E echo "3:" $<TARGET_PROPERTY:exqudensTestLibraryInterface,SOURCES>
     COMMAND ${CMAKE_COMMAND} -E echo "4:" $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_INCLUDE_DIRECTORIES>
     COMMAND ${CMAKE_COMMAND} -E echo "5:" $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_OUTPUT_DIRECTORY>
     COMMAND ${CMAKE_COMMAND} -E echo "6:" $<TARGET_FILE_DIR:TestExecutableShared>
+    COMMAND ${CMAKE_COMMAND} -E echo "7:" $<TARGET_NAME_IF_EXISTS:test>
 )
