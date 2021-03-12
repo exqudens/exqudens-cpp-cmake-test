@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <stdexcept>
 
 namespace exqudens::other {
 
@@ -22,6 +23,7 @@ namespace exqudens::other {
         std::cout << "===" << std::endl;
         std::cout << "OtherTests.test2()" << std::endl;
         std::cout << "===" << std::endl;
+        //throw std::runtime_error("AAA: aaa!!!");
       }
 
   };

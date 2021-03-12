@@ -34,14 +34,14 @@ target_include_directories(exqudensTestLibraryInterface INTERFACE
 set_target_properties(exqudensTestLibraryInterface PROPERTIES
     INTERFACE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}/include"
 )
-add_custom_target(exqudensTestLibraryInterfaceBuild
+add_custom_target(project-build
     COMMAND ${CMAKE_COMMAND} -E make_directory
         $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_OUTPUT_DIRECTORY>
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_INCLUDE_DIRECTORIES>
         $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_OUTPUT_DIRECTORY>
 )
-add_dependencies(exqudensTestLibraryInterfaceBuild exqudensTestLibraryInterface)
+add_dependencies(project-build exqudensTestLibraryInterface)
 
 ######################################################################
 # test ###############################################################
@@ -51,7 +51,7 @@ add_library(exqudensTestLibraryInterfaceImported INTERFACE IMPORTED)
 target_include_directories(exqudensTestLibraryInterfaceImported INTERFACE
     $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_OUTPUT_DIRECTORY>
 )
-add_dependencies(exqudensTestLibraryInterfaceImported exqudensTestLibraryInterfaceBuild)
+add_dependencies(exqudensTestLibraryInterfaceImported project-build)
 
 add_library(testLibraryInterface INTERFACE
     src/test/cpp/exqudens/other/OtherTests.hpp
@@ -96,33 +96,33 @@ add_dependencies(TestExecutableShared testLibraryInterface copyTestExecutableSha
 enable_testing()
 
 add_test(
-    NAME project-tests
+    NAME allTests
     WORKING_DIRECTORY $<TARGET_FILE_DIR:TestExecutableShared>
     COMMAND TestExecutableShared -t
         exqudens.other.OtherTests.test1
         exqudens.other.OtherTests.test2
 )
-set_tests_properties(project-tests PROPERTIES
+set_tests_properties(allTests PROPERTIES
     ENVIRONMENT "PATH=$<TARGET_FILE_DIR:TestExecutableShared>"
 )
+add_custom_target(project-tests
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target test -- -j 3
+)
+add_dependencies(project-tests TestExecutableShared)
 
 ######################################################################
 # install ############################################################
 ######################################################################
 
-add_custom_target(project-install
-    COMMAND
-        ${CMAKE_COMMAND}
-        -E
-        make_directory
-        ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
-    COMMAND
-        ${CMAKE_COMMAND}
-        -E
-        copy_directory
-        ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
-        ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+install(
+    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}/include
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+    FILES_MATCHING PATTERN "*.hpp"
 )
+add_custom_target(project-install
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target install -- -j 3
+)
+add_dependencies(project-install project-tests)
 
 ######################################################################
 # info ###############################################################
