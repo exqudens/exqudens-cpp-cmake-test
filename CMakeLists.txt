@@ -17,7 +17,10 @@ endif()
 include(extension.cmake)
 
 get_filename_component(CXX_COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
+set_home_prefix_if_not_defined(HOME_PREFIX)
+set_if_not_defined(INSTALL_PREFIX ${HOME_PREFIX}/.cmake/packages)
 
+set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
 set(CMAKE_CXX_STANDARD 20)
 #set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
@@ -40,6 +43,7 @@ add_custom_target(project-build
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_INCLUDE_DIRECTORIES>
         $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_OUTPUT_DIRECTORY>
+    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}/include
 )
 add_dependencies(project-build exqudensTestLibraryInterface)
 
@@ -88,41 +92,38 @@ foreach(fileName
             PRE_BUILD
             COMMAND ${CMAKE_COMMAND}
             ARGS -E copy ${CXX_COMPILER_DIR}/${fileName} $<TARGET_FILE_DIR:TestExecutableShared>
+            BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/build/test/${PROJECT_NAME}-${PROJECT_VERSION}/bin/${fileName}
         )
     endif()
 endforeach()
 add_dependencies(TestExecutableShared testLibraryInterface copyTestExecutableSharedLibraries)
 
-enable_testing()
-
-add_test(
-    NAME allTests
+add_custom_target(project-test
+    COMMAND ${CMAKE_COMMAND} -E env PATH=$<TARGET_FILE_DIR:TestExecutableShared> $<TARGET_FILE:TestExecutableShared> -t
+            exqudens.other.OtherTests.test1
+            exqudens.other.OtherTests.test2
     WORKING_DIRECTORY $<TARGET_FILE_DIR:TestExecutableShared>
-    COMMAND TestExecutableShared -t
-        exqudens.other.OtherTests.test1
-        exqudens.other.OtherTests.test2
 )
-set_tests_properties(allTests PROPERTIES
-    ENVIRONMENT "PATH=$<TARGET_FILE_DIR:TestExecutableShared>"
-)
-add_custom_target(project-tests
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target test -- -j 3
-)
-add_dependencies(project-tests TestExecutableShared)
+add_dependencies(project-test TestExecutableShared)
 
 ######################################################################
 # install ############################################################
 ######################################################################
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}/include
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
-    FILES_MATCHING PATTERN "*.hpp"
-)
 add_custom_target(project-install
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target install -- -j 3
+    COMMAND
+        ${CMAKE_COMMAND}
+        -E
+        make_directory
+        ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+    COMMAND
+        ${CMAKE_COMMAND}
+        -E
+        copy_directory
+        ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
+        ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
 )
-add_dependencies(project-install project-tests)
+add_dependencies(project-install project-test)
 
 ######################################################################
 # info ###############################################################
