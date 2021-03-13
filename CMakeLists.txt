@@ -110,18 +110,20 @@ add_dependencies(project-test TestExecutableShared)
 # install ############################################################
 ######################################################################
 
+add_custom_command(
+    OUTPUT  ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+    COMMAND ${CMAKE_COMMAND}
+    ARGS    -E
+            make_directory
+            ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+    COMMAND ${CMAKE_COMMAND}
+    ARGS    -E
+            copy_directory
+            ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
+            ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+)
 add_custom_target(project-install
-    COMMAND
-        ${CMAKE_COMMAND}
-        -E
-        make_directory
-        ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
-    COMMAND
-        ${CMAKE_COMMAND}
-        -E
-        copy_directory
-        ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
-        ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+    DEPENDS ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
 )
 add_dependencies(project-install project-test)
 
