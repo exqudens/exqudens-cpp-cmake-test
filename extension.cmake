@@ -1,3 +1,14 @@
+# declare script commands
+if("file_upload" STREQUAL "${CMAKE_ARGV3}")
+    # file = ${CMAKE_ARGV4}
+    # url = ${CMAKE_ARGV5}
+    file(UPLOAD ${CMAKE_ARGV4} ${CMAKE_ARGV5})
+elseif("file_download" STREQUAL "${CMAKE_ARGV3}")
+    # url = ${CMAKE_ARGV4}
+    # file = ${CMAKE_ARGV5}
+    file(DOWNLOAD ${CMAKE_ARGV4} ${CMAKE_ARGV5})
+endif()
+
 # declare function 'set_if_not_defined'
 function(set_if_not_defined variableName)
     if(NOT DEFINED ${variableName})
