@@ -19,10 +19,11 @@ include(extension.cmake)
 
 get_filename_component(CXX_COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 set_home_prefix_if_not_defined(HOME_PREFIX)
-set_if_not_defined(INSTALL_PREFIX ${HOME_PREFIX}/.cmake/packages)
+set_if_not_defined(DOWNLOADS_PREFIX ${HOME_PREFIX}/.cmake/downloads)
+set_if_not_defined(PACKAGES_PREFIX ${HOME_PREFIX}/.cmake/packages)
 set_if_not_defined(REPOSITORY_PREFIX ${HOME_PREFIX}/.cmake/repository)
 
-set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
+set(CMAKE_INSTALL_PREFIX ${PACKAGES_PREFIX})
 set(CMAKE_CXX_STANDARD 20)
 #set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
@@ -163,7 +164,7 @@ add_custom_target(project-pack
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/build/main
     COMMENT           "Packaging project."
 )
-add_dependencies(project-pack project-build)
+add_dependencies(project-pack project-test)
 
 add_custom_target(project-upload
     COMMAND ${CMAKE_COMMAND}

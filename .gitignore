@@ -3,6 +3,8 @@
 .vs/
 idea-build/
 vs-build/
+downloads/
+packages/
 build/
 
 # Files
