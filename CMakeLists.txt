@@ -89,10 +89,11 @@ set_target_properties(TestExecutableShared PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/test/${PROJECT_NAME}-${PROJECT_VERSION}/bin"
 )
 add_custom_target(copyTestExecutableSharedLibraries
-    COMMAND ${CMAKE_COMMAND} -E echo "building" $<TARGET_NAME_IF_EXISTS:copyTestExecutableSharedLibraries>
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:TestExecutableShared>
-    #COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_PROPERTY:TestExecutableShared,RESOURCE_OUTPUT_DIRECTORY>
-    #COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/src/test/resources $<TARGET_PROPERTY:TestExecutableShared,RESOURCE_OUTPUT_DIRECTORY>
+    COMMAND    ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:TestExecutableShared>
+    #COMMAND    ${CMAKE_COMMAND} -E make_directory $<TARGET_PROPERTY:TestExecutableShared,RESOURCE_OUTPUT_DIRECTORY>
+    #COMMAND    ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/src/test/resources $<TARGET_PROPERTY:TestExecutableShared,RESOURCE_OUTPUT_DIRECTORY>
+    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/build/test/${PROJECT_NAME}-${PROJECT_VERSION}/bin"
+    COMMENT "Copying shared libraries."
 )
 foreach(fileName
     "libstdc++-6.dll"
