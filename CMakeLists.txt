@@ -88,13 +88,6 @@ target_link_libraries(TestExecutableShared
 set_target_properties(TestExecutableShared PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/test/${PROJECT_NAME}-${PROJECT_VERSION}/bin"
 )
-add_custom_target(copyTestExecutableSharedLibraries
-    COMMAND    ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:TestExecutableShared>
-    #COMMAND    ${CMAKE_COMMAND} -E make_directory $<TARGET_PROPERTY:TestExecutableShared,RESOURCE_OUTPUT_DIRECTORY>
-    #COMMAND    ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/src/test/resources $<TARGET_PROPERTY:TestExecutableShared,RESOURCE_OUTPUT_DIRECTORY>
-    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/build/test/${PROJECT_NAME}-${PROJECT_VERSION}/bin"
-    COMMENT "Copying shared libraries."
-)
 foreach(fileName
     "libstdc++-6.dll"
     "libgcc_s_seh-1.dll"
@@ -102,15 +95,16 @@ foreach(fileName
 )
     if(EXISTS ${CXX_COMPILER_DIR}/${fileName})
         add_custom_command(
-            TARGET copyTestExecutableSharedLibraries
+            TARGET TestExecutableShared
             PRE_BUILD
             COMMAND ${CMAKE_COMMAND}
             ARGS -E copy ${CXX_COMPILER_DIR}/${fileName} $<TARGET_FILE_DIR:TestExecutableShared>
             BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/build/test/${PROJECT_NAME}-${PROJECT_VERSION}/bin/${fileName}
+            COMMENT "Copying '${fileName}' shared library."
         )
     endif()
 endforeach()
-add_dependencies(TestExecutableShared testLibraryInterface copyTestExecutableSharedLibraries)
+add_dependencies(TestExecutableShared testLibraryInterface)
 
 add_custom_target(project-test
     COMMAND           ${CMAKE_COMMAND}
