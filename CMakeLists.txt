@@ -20,10 +20,9 @@ include(extension.cmake)
 get_filename_component(CXX_COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 set_home_prefix_if_not_defined(HOME_PREFIX)
 set_if_not_defined(REPOSITORY_PREFIX ${HOME_PREFIX}/.cmake/repository)
-set_if_not_defined(DOWNLOADS_PREFIX ${HOME_PREFIX}/.cmake/downloads)
-set_if_not_defined(PACKAGES_PREFIX ${HOME_PREFIX}/.cmake/packages)
+set_if_not_defined(FILES_PREFIX ${HOME_PREFIX}/.cmake/files)
 
-set(CMAKE_INSTALL_PREFIX ${PACKAGES_PREFIX})
+set(CMAKE_INSTALL_PREFIX ${FILES_PREFIX}/${PROJECT_NAME}/${PROJECT_VERSION})
 set(CMAKE_CXX_STANDARD 20)
 #set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
@@ -125,20 +124,20 @@ add_dependencies(project-test TestExecutableShared)
 ######################################################################
 
 add_custom_command(
-    OUTPUT  ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+    OUTPUT  ${CMAKE_INSTALL_PREFIX}
     COMMAND ${CMAKE_COMMAND}
     ARGS    -E
             make_directory
-            ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+            ${CMAKE_INSTALL_PREFIX}
     COMMAND ${CMAKE_COMMAND}
     ARGS    -E
             copy_directory
             ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
-            ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+            ${CMAKE_INSTALL_PREFIX}
     COMMENT "Installing project."
 )
 add_custom_target(project-install
-    DEPENDS ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}
+    DEPENDS ${CMAKE_INSTALL_PREFIX}
 )
 add_dependencies(project-install project-test)
 
@@ -154,9 +153,9 @@ add_custom_target(project-pack
                       ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}.zip
                       --format=zip
                       --
-                      ${PROJECT_NAME}-${PROJECT_VERSION}
+                      include
     BYPRODUCTS        ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}.zip
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/build/main
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
     COMMENT           "Packaging project."
 )
 add_dependencies(project-pack project-test)
