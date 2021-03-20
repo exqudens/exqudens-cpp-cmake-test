@@ -12,7 +12,7 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extension.cmake")
             "https://raw.githubusercontent.com/exqudens/exqudens-cmake/master/src/main/cmake/extension.cmake"
             "${CMAKE_CURRENT_SOURCE_DIR}/extension.cmake"
         EXPECTED_MD5
-            "b7bdd8a403ba4a9ccbf2a1793bff07d6"
+            "7c526424fac56eea201662066df2eaed"
     )
 endif()
 include(extension.cmake)
@@ -123,60 +123,41 @@ add_dependencies(project-test TestExecutableShared)
 # install ############################################################
 ######################################################################
 
-add_custom_command(
-    OUTPUT  ${CMAKE_INSTALL_PREFIX}
-    COMMAND ${CMAKE_COMMAND}
-    ARGS    -E
-            make_directory
-            ${CMAKE_INSTALL_PREFIX}
-    COMMAND ${CMAKE_COMMAND}
-    ARGS    -E
-            copy_directory
-            ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
-            ${CMAKE_INSTALL_PREFIX}
-    COMMENT "Installing project."
+add_custom_target_install(
+    project-install
+    project-test
+    ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
+    ${CMAKE_INSTALL_PREFIX}
+    ${CMAKE_COMMAND}
 )
-add_custom_target(project-install
-    DEPENDS ${CMAKE_INSTALL_PREFIX}
-)
-add_dependencies(project-install project-test)
 
 ######################################################################
 # upload #############################################################
 ######################################################################
 
-add_custom_target(project-pack
-    COMMAND           ${CMAKE_COMMAND}
-                      -E
-                      tar
-                      cfv
-                      ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}.zip
-                      --format=zip
-                      --
-                      include
-    BYPRODUCTS        ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}.zip
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
-    COMMENT           "Packaging project."
+add_custom_target_pack(
+    project-pack
+    project-test
+    ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}
+    ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}.zip
+    ${CMAKE_COMMAND}
 )
-add_dependencies(project-pack project-test)
 
-add_custom_target(project-upload
-    COMMAND ${CMAKE_COMMAND}
-            -P
-            ${CMAKE_CURRENT_SOURCE_DIR}/extension.cmake
-            file_upload
-            ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}.zip
-            file:///${REPOSITORY_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}.zip
-    COMMENT "Uploading project."
+add_custom_target_upload(
+    project-upload
+    project-pack
+    ${CMAKE_CURRENT_BINARY_DIR}/build/main/${PROJECT_NAME}-${PROJECT_VERSION}.zip
+    file:///${REPOSITORY_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}.zip
+    ${CMAKE_COMMAND}
+    ${CMAKE_CURRENT_SOURCE_DIR}/extension.cmake
 )
-add_dependencies(project-upload project-pack)
 
 ######################################################################
 # info ###############################################################
 ######################################################################
 
 add_custom_target(project-info
-    COMMAND ${CMAKE_COMMAND} -E echo "1:" $<TARGET_NAME_IF_EXISTS:info>
+    COMMAND ${CMAKE_COMMAND} -E echo "1:" $<TARGET_NAME_IF_EXISTS:project-info>
     COMMAND ${CMAKE_COMMAND} -E echo "2:" $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_SOURCES>
     COMMAND ${CMAKE_COMMAND} -E echo "3:" $<TARGET_PROPERTY:exqudensTestLibraryInterface,SOURCES>
     COMMAND ${CMAKE_COMMAND} -E echo "4:" $<TARGET_PROPERTY:exqudensTestLibraryInterface,INTERFACE_INCLUDE_DIRECTORIES>
