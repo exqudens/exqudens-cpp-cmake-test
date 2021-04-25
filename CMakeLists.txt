@@ -3,7 +3,7 @@
 ######################################################################
 
 cmake_minimum_required(VERSION 3.20)
-project(exqudens-test VERSION 1.0.0)
+project(exqudens-cpp-cmake-test VERSION 1.0.0)
 
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extension.cmake")
     file(
